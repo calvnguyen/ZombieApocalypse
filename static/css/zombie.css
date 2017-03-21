@@ -1,0 +1,105 @@
+/*CSS reset settings here*/
+* {
+    margin: 0px;
+    padding: 0px;
+}
+
+body{
+    background:url('/static/img/background.jpg');
+    background-repeat:no-repeat;
+    background-size:100%;
+    height: 100%;
+    width: 100%;
+    background-size: cover;*/
+}
+
+#header-text {
+    font-weight: bold;
+    font-family: lato, verdana, arial, sans-serif;
+    color: black;
+    margin-left: 40px;
+    margin-bottom: 30px;
+    font-size: 30pt;
+    text-align: center;
+    margin-top: 20px;
+}
+
+#form-container {
+    margin: 0px auto;
+    height: 270px;
+    width: 600px;
+    padding-top: 10px;
+    background-color: white;
+    border-radius: 5%;
+    margin-top: 50px;
+    font-family: verdana, arial, sans-serif;
+
+}
+
+.main-form{
+    margin-top: 20px;
+}
+
+
+#user-form {
+    display: block;
+
+}
+
+.result-text {
+    display: block;
+    margin-top: 40px;
+    font-weight: bold;
+}
+
+.form-label {
+    display: block;
+    padding: 5px;
+    margin: 10px;
+}
+
+.option-text {
+    font-family: verdana, arial, sans-serif;
+    font-size: 14pt;
+}
+
+#input-box {
+    font-family: verdana, arial, sans-serif;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    width: 120px;
+    display: inline-block;
+}
+
+.view_box {
+    display: inline-block;
+    text-align: center;
+    padding: 10px;
+    border: 1px solid black;
+    width: 160px;
+    height: 120px;
+    vertical-align: top;
+}
+
+.navbar-default {
+    background-image: url('/static/img/banner.png');
+    background-size: 100% 300px;
+}
+.container-fluid{
+    height: 300px;
+}
+.navbar-brand,
+.navbar-nav>li{
+    margin-top: 50px;
+    color: white !important;
+    font-size: 200% !important;
+}
+.navbar-nav>li{
+    margin-top: 250px;
+}
+.navbar-default .navbar-nav>li>a {
+    color: white !important;
+}
+#home-form{
+    margin-top: 50px;
+}
