@@ -1,0 +1,128 @@
+{% extends 'zombie/index.html' %}
+{% load static %}
+{% block container %}
+    <div class="col-md-12 well" id="me">
+        <canvas id="canvas" class="pull-left" width="{{ width }}" height="{{ height }}"></canvas>
+        <div id="legend" class="pull-right">
+            <div id="blue"><span></span><span>Human</span></div>
+            <div id="red"><span></span><span>Panicked Human</span></div>
+            <div id="green"><span></span><span>Zombie</span></div>
+            <div id="yellow"><span></span><span>Fighting Human</span></div>
+        </div>
+    </div>
+    {% block container_extra %}{% endblock %}
+{% endblock %}
+{% block extra_css %}
+    <style>
+        #restart {
+            float: none;
+            margin: 0 auto;
+            display: table;
+        }
+
+        #curve_chart {
+            width: 900px;
+            height: 500px;
+            margin: 0 auto;
+            margin-top: 40px;
+        }
+
+        #legend {
+            background-color: grey;
+            width: 180px;
+            height: 80px;
+            color: white;
+        }
+
+        #curve_chart {
+            margin: 0 auto;
+            margin-top: 40px;
+            border: 2px solid;
+        }
+
+        #legend > div > span:first-child {
+            width: {{ size }}px;
+            height: {{ size }}px;
+            display: block;
+            float: left;
+            margin: 5px;
+        }
+
+        #red span:first-child {
+
+            background-color: red;
+        }
+
+        #blue span:first-child {
+            background-color: blue;
+        }
+
+        #yellow span:first-child {
+            background-color: purple;
+        }
+
+        #green span:first-child {
+            background-color: green;
+        }
+
+        #canvas {
+            vertical-align: baseline;
+            float: none;
+            margin: 0 auto;
+            display: block;
+        }
+
+        #table, #container {
+            margin: 20px 20px 20px 0;
+        }
+
+        #canvas {
+            background-image: url('{% static 'img/simu_bg.png' %}');
+        }
+
+        .tr {
+            font-weight: bold;
+            font-size: 110%;
+        }
+    </style>
+    <script>
+        var canvas = document.getElementById("canvas");
+        var ctx = canvas.getContext("2d");
+        colors = ["blue", "red", "green", "purple"];
+    </script>
+{% endblock %}
+{% block extra_js %}
+    <script>
+        var initial_data ={{ data|safe }};
+        var next_url = "{{ next_url }}";
+        var index = 0;
+        function draw() {
+            var data = initial_data['data'][index];
+            $.each(data, function (key, value) {
+                var x = parseInt(key.split(",")[0]);
+                var y = parseInt(key.split(",")[1]);
+                for (i in value) {
+                    ctx.fillStyle = colors[value[i]];
+                    ctx.fillRect(x, y, {{ size }}, {{ size }});
+                }
+            });
+            index++;
+            if (index < initial_data['data'].length) {
+                setTimeout(draw(), 5000);
+            }
+        }
+        function wait(ms) {
+            var start = new Date().getTime();
+            var end = start;
+            while (end < start + ms) {
+                end = new Date().getTime();
+            }
+        }
+        $(document).ready(function () {
+            draw();
+            wait(1000);
+            window.location = next_url;
+        })
+
+    </script>
+{% endblock %}

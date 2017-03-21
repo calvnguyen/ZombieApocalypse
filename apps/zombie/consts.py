@@ -1,0 +1,7 @@
+OBJECT_SIZE = 10 # Creature Size
+WIDTH = 90 * OBJECT_SIZE  # Planet width
+HEIGHT = 50 * OBJECT_SIZE  # Planet Height
+HUMAN_SPEED_X = 3
+HUMAN_SPEED_Y = 3
+ZOMBIE_SPEED_X = 2
+ZOMBIE_SPEED_Y = 2

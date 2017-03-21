@@ -1,0 +1,69 @@
+{% extends 'zombie/simulation.html' %}
+{% load static %}
+{% block container_extra %}
+    <div id="curve_chart" class="col-md-12"></div>
+    <table id="table" class="col-md-12 table table-responsive table-bordered">
+        <thead>
+        <tr class="success tr">
+            <td>Iteration</td>
+            <td>Starting Human Population</td>
+            <td>Starting Zombie Population</td>
+            <td>Final Human Population</td>
+            <td>Final Zombie Population</td>
+            <td>Number of New Zombies</td>
+            <td>Number of Zombies Killed</td>
+        </tr>
+        </thead>
+        <tbody>
+        {% for table in table_data %}
+            <tr class="{{ styles|random }}">
+                {% for t in table %}
+                    <td>{{ t }}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <div id="restart" class="col-md-12">
+        <a href="/" class="btn btn-success pull-right">Restart Simulation</a>
+    </div>
+{% endblock %}
+{% block extra_js %}
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', {'packages': ['corechart']});
+        google.charts.setOnLoadCallback(drawChart);
+        function drawChart() {
+            var data = google.visualization.arrayToDataTable({{ chart_data|safe }});
+            var options = {
+                title: 'A zombie apocalypse game simulation',
+                curveType: 'function',
+                legend: {position: 'bottom'},
+                vAxis: {
+                    title: "Population"
+                },
+                hAxis: {
+                    title: "Simulation Time"
+                },
+                colors: ['blue', 'red', 'green', 'purple', 'yellow']
+            };
+            var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
+            chart.draw(data, options);
+        }
+        var data ={{ data|safe }};
+        function draw() {
+            $.each(data, function (key, value) {
+                var x = parseInt(key.split(",")[0]);
+                var y = parseInt(key.split(",")[1]);
+                for (i in value) {
+                    ctx.fillStyle = colors[value[i]];
+                    ctx.fillRect(x, y, {{ size }}, {{ size }});
+                }
+            });
+        }
+        $(document).ready(function () {
+            draw();
+        })
+    </script>
+
+{% endblock %}
