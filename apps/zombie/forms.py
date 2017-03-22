@@ -1,3 +1,4 @@
+# handling form inputs
 from django import forms
 
 from models import Game

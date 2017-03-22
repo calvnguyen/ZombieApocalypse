@@ -1,8 +1,19 @@
+
+##
+Website: http://zombiesimu.run
+Deployed on: AWS EC2
+Date: 3/21/2017
+Author: Calvin Nguyen
+GitHub: https://github.com/calvnguyen/ZombieApocalypse
+
 ## Technologies
 1. Django, Python (for Back-End)
 2. Bootstrap/jquery/ HTML/CSS/JavaScript (Front-End)
 3. SQLite3 DB for database
 
+## Server 
+ Ubuntu 16.04
+ nginx version: nginx/1.10.0 (Ubuntu)
 
 ### Implementation details
 
@@ -18,12 +29,16 @@
 * Simulation details
     1. There is a Planet class which holds list of creatures( Human, PanickedHuman, Zombie and FightingHuman classes )
     2. Game is initialized with zombie/human/fighting population calculated from user inputs
-    3. Fighting humans are selected randomly at 5% of zombies
+    3. Fighting humans are selected randomly at 20% of zombies
     4. These creates are placed at different locations on the planet. Planet is considered a 2-D plane
-    5. In each iteration, move all these creatures with a time of 1 quanta
-    6. All constants values like speed, creature size are defined in consts.py
-    7. At the end of each simulation simulation state is dump into the file
-    8. When page is refreshed Planet is created from file
+    5. Humans are infected when within a radius of zombie locations. They can randomly be infected or panic.
+    6. Humans can panic and run witin the same radius, which then become Panicked Humans. This is randomized.
+    7. Zombies can be killed by Fighting Human
+    8. Fighting Human (aka super hero) can turn Panicked Human into normal again and also kill zombies
+    9. In each iteration, move all these creatures with a time of 1 quanta
+   10. All constants values like speed, creature size are defined in consts.py
+   11. At the end of each simulation simulation state is dump into the file
+   12. When page is refreshed Planet is created from file
 
 
 * Move detail
