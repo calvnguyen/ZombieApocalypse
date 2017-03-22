@@ -165,6 +165,7 @@ class Planet(object):
         self.width = width
         self.filePath = filePath
         self.objects = dict()
+        self.zombie_killed = 0
         if self.filePath is not None:
             self.load_state_from_file(self.filePath)
 
@@ -215,10 +216,8 @@ class Planet(object):
         new_zombies_ = zombie - sm.zombie_population
         zombie_killed = 0
         new_zombies = 0
-        # get the # of zombies killed this iteration
-        if new_zombies_ < 0:
-            zombie_killed = abs(new_zombies_)
-        else:
+        # get the new zombies count
+        if new_zombies_ > 0:
             new_zombies = new_zombies_
 
         SimulationResult.objects.create(game=game,
@@ -228,7 +227,7 @@ class Planet(object):
                                         zombie_population=zombie,
                                         panicked_human=panic,
                                         fighting_human=fighting,
-                                        zombie_killed=zombie_killed)
+                                        zombie_killed=self.zombie_killed)
 
     def move(self, x, y):
         peoples = self.objects.get((x, y), set())
@@ -240,10 +239,10 @@ class Planet(object):
             if people.im == Human.im:
                 types = set()
                 # Check whether in OBJECT_SIZE*HUMAN_SPEED_X x OBJECT_SIZE * HUMAN_SPEED_Y
-                # area to see is there any zombie. If we find any Zombie, then human will become
+                # area is there any zombie If we find any Zombie then human will become
                 # panicked human or zombie randomly
-                for i in range(1, OBJECT_SIZE * HUMAN_SPEED_X):
-                    for j in range(1, OBJECT_SIZE * HUMAN_SPEED_Y):
+                for i in range(0, OBJECT_SIZE * HUMAN_SPEED_X):
+                    for j in range(0, OBJECT_SIZE * HUMAN_SPEED_Y):
                         types = types.union(self.object_types(people.x + i, people.y))
                         types = types.union(self.object_types(people.x + i, people.y + j))
                         types = types.union(self.object_types(people.x + i, people.y - j))
@@ -264,10 +263,15 @@ class Planet(object):
                     new_people.append(people)
 
             elif people.im == Zombie.im:
-                types = self.object_types(people.x, people.y)
+                types = set()
+                for i in range(0, OBJECT_SIZE*ZOMBIE_SPEED_X):
+                    for j in range(0, OBJECT_SIZE*ZOMBIE_SPEED_Y):
+                        types = types.union(self.object_types(people.x + i, people.y + j))
+
                 # There's a fighting human and zombie has entered, so zombie will be die!!!!
                 if FightingHuman in types:
-                    pass  # no addition of Zombie :(
+                    # no addition of Zombie :(
+                    self.zombie_killed += 1
                 else:
                     # converting to zombie
                     people = Zombie(people.x, people.y)
@@ -278,14 +282,17 @@ class Planet(object):
 
             elif people.im == FightingHuman.im:
                 new_people.append(people)
-                for o in self.objects.get((people.x, people.y), set()):
-                    if o.im == Zombie.im:
-                        # ZOMBIE DYING...
-                        new_removed.append(o)
-                    elif o.im == PanickedHuman.im:
-                        # Become a normal human again (no panic)
-                        new_removed.append(o)
-                        new_people.append(Human(o.x, o.y))
+                for i in range(0, OBJECT_SIZE*HUMAN_SPEED_X):
+                    for j in range(0, OBJECT_SIZE*HUMAN_SPEED_Y):
+                        for o in self.objects.get((people.x + i, people.y + j), set()):
+                            if o.im == Zombie.im:
+                                # ZOMBIE DYING.....count it
+                                self.zombie_killed += 1
+                                new_removed.append(o)
+                            elif o.im == PanickedHuman.im:
+                                # Become a normal human again (no panic)
+                                new_removed.append(o)
+                                new_people.append(Human(o.x, o.y))
 
             elif people.im == PanickedHuman.im:
                 new_people.append(people)
@@ -326,8 +333,8 @@ class Planet(object):
             x, y = self.get_unique_location(generate_x_y)
             self.objects.setdefault((x, y), set()).add(Zombie(x, y))
 
-        # 5% of zombies are fighting humans if it's
-        fighting_humans = zombies * 5 / 100
+        # 20% of zombies are fighting humans
+        fighting_humans = zombies * 20 / 100
         if fighting_humans < 10:
             fighting_humans = 10
 
@@ -398,3 +405,147 @@ class Planet(object):
         data.append("}")
         return "".join(data)
 
+
+EMAIL_REGEX = re.compile(r'^[a-zA-Z0-9.+_-]+@[a-zA-Z0-9._-]+\.[a-zA-Z]+$')
+# name cannot contain numbers
+NAME_REGEX = re.compile(r'^[^0-9]+$')
+# requires a password to have at least 1 uppercase letter and 1 numeric value.
+PASS_REGEX = re.compile(r'^(?=.*[A-Z])(?=.*\d).+$')
+
+
+class UserManager(models.Manager):
+    def login(self, email, password):
+        errors = {}
+
+        errors['email-error'] = []
+        errors['password-error'] = []
+
+        if len(email) < 1:
+            errors['email-error'].append("Email cannot be empty!")
+
+        elif not EMAIL_REGEX.match(email):
+            errors['email-error'].append("Invalid email address format!")
+
+        if len(password) < 1:
+            errors['password-error'].append("Password cannot be empty!")
+
+        elif len(password) < 8:
+            errors['password-error'].append("Password\'s length has to be more than 8 characters!")
+
+        if len(errors['email-error']) != 0 or len(errors['password-error']) != 0:
+            return (False, errors)
+
+        else:
+            try:
+                user = User.userMgr.get(email=email)
+
+                if not bcrypt.hashpw(password, user.password.encode('utf-8')) == user.password:
+                    print "login check - password DO NOT MATCH"
+                    errors['password-error'].append("Either email/pw is incorrect")
+                    return (False, errors)
+                elif bcrypt.hashpw(password, user.password.encode('utf-8')) == user.password:
+                    print "login check - passwords match"
+                return (True, user)
+
+
+            except User.DoesNotExist:
+                errors['email-error'].append("Email cannot be found")
+        return (False, errors)
+
+    def register(self, first_name, last_name, email, password, passwordconfirm, dob):
+        errors = {}
+        present = datetime.now()
+        errors['first-name-error'] = []
+        errors['last-name-error'] = []
+        errors['email-error'] = []
+        errors['dob-error'] = []
+        errors['password-error'] = []
+        errors['password-confirm-error'] = []
+
+        if len(first_name) < 1:
+            errors['first-name-error'].append("First name cannot be empty!")
+
+        elif len(first_name) < 2:
+            errors['first-name-error'].append("First name has to be at least 2 characters!")
+
+        elif not NAME_REGEX.match(first_name):
+            errors['first-name-error'].append("First name cannot contain a number!")
+
+        if len(last_name) < 1:
+            errors['last-name-error'].append("Last name cannot be empty!")
+
+        elif len(last_name) < 2:
+            errors['last-name-error'].append("Last name has to be at least 2 characters!")
+
+        elif not NAME_REGEX.match(last_name):
+            errors['last-name-error'].append("Last name cannot contain a number!")
+
+        if len(email) < 1:
+            errors['email-error'].append("Email cannot be empty!")
+
+        elif not EMAIL_REGEX.match(email):
+            errors['email-error'].append("Invalid email address format!")
+
+        elif not self.is_date(dob):
+            errors['dob-error'].append("Birthday entered is not valid!!")
+        elif datetime.strptime(dob, "%Y-%m-%d") > present:
+            errors['dob-error'].append("Birthday must be from the past!")
+
+        if len(password) < 1:
+            errors['password-error'].append("Password cannot be empty!")
+
+        elif len(password) < 8:
+            errors['password-error'].append("Password's length has to be more than 8 characters!")
+
+        elif not PASS_REGEX.match(password):
+            errors['password-error'].append("Password needs to have at least 1 number and 1 Upper-Case letter!")
+
+        if len(passwordconfirm) < 1:
+            errors['password-confirm-error'].append("Password Confirmation cannot be empty!")
+
+        elif not PASS_REGEX.match(passwordconfirm):
+            errors['password-confirm-error'].append(
+                "Password confirmation needs to have at least 1 number and 1 Upper-Case letter!")
+
+        elif len(passwordconfirm) < 8:
+            errors['password-confirm-error'].append("Password confirmation's length has to be more than 8 characters!")
+
+        if password != passwordconfirm:
+            errors['password-confirm-error'].append("Password and password's confirmation must match!")
+
+        print len(errors['email-error'])
+        if len(errors['email-error']) != 0 or len(errors['password-error']) != 0 or len(
+                errors['password-confirm-error']) != 0 or len(errors['dob-error']) != 0 or len(
+            errors['first-name-error']) != 0 or len(errors['last-name-error']) != 0:
+            return (False, errors)
+
+        else:
+            user = User.userMgr.filter(email=email)
+            if (user):
+                errors['email-error'].append("Email already exists. Please proceed to login or choose another one")
+                return (False, errors)
+            else:
+                hashed = bcrypt.hashpw(password, bcrypt.gensalt().encode('utf-8'))
+                user = User.userMgr.create(first_name=first_name, last_name=last_name, email=email, password=hashed,
+                                           dob=dob)
+                user.save()
+                return (True, user)
+
+    def is_date(self, birthday):
+        try:
+            if birthday != datetime.strptime(birthday, "%Y-%m-%d").strftime('%Y-%m-%d'):
+                raise ValueError
+            return True
+        except ValueError:
+            return False
+
+
+class User(models.Model):
+    first_name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255)
+    email = models.CharField(max_length=255)
+    password = models.CharField(max_length=255)
+    dob = models.CharField(max_length=10, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    userMgr = UserManager()
