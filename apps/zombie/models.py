@@ -1,3 +1,4 @@
+# this is where all the game logic and database objects are stored
 from __future__ import unicode_literals
 import copy
 import random
@@ -214,6 +215,7 @@ class Planet(object):
         new_zombies_ = zombie - sm.zombie_population
         zombie_killed = 0
         new_zombies = 0
+        # get the # of zombies killed this iteration
         if new_zombies_ < 0:
             zombie_killed = abs(new_zombies_)
         else:
@@ -263,9 +265,9 @@ class Planet(object):
 
             elif people.im == Zombie.im:
                 types = self.object_types(people.x, people.y)
-                # There's a fighting human and zombie has enter so zombie will be die!!!!
+                # There's a fighting human and zombie has entered, so zombie will be die!!!!
                 if FightingHuman in types:
-                    pass  # no addition of Zombie
+                    pass  # no addition of Zombie :(
                 else:
                     # converting to zombie
                     people = Zombie(people.x, people.y)
@@ -278,10 +280,10 @@ class Planet(object):
                 new_people.append(people)
                 for o in self.objects.get((people.x, people.y), set()):
                     if o.im == Zombie.im:
-                        # ZOMBIE DYEING
+                        # ZOMBIE DYING...
                         new_removed.append(o)
                     elif o.im == PanickedHuman.im:
-                        # converting to human
+                        # Become a normal human again (no panic)
                         new_removed.append(o)
                         new_people.append(Human(o.x, o.y))
 
