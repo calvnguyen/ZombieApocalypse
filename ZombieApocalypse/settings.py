@@ -26,7 +26,7 @@ SECRET_KEY = '%2d5-4e(vzec!n)v7^bi+erz!8(0$e-l-@64r8frmam6c8%94x'
 DEBUG = True
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 ALLOWED_HOSTS = ['zombiesimu.run']
-
+#ALLOWED_HOSTS = ['localhost']
 
 # Application definition
 
