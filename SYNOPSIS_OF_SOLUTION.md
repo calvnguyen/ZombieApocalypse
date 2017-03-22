@@ -18,8 +18,8 @@ GitHub: https://github.com/calvnguyen/ZombieApocalypse
 ### Implementation details
 
 * Database Tables
-    1. We have used Django models to create database
-    2. We have created two models one is for game(Game) another for simulation(SimulationResult).
+    1. Used Django models to create database
+    2. Created two models one is for game(Game) another for simulation(SimulationResult).
 
 * Game creation
     When users submit form:
