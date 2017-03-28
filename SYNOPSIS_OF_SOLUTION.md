@@ -38,7 +38,7 @@ GitHub: https://github.com/calvnguyen/ZombieApocalypse
     9. In each iteration, move all these creatures with a time of 1 quanta
    10. All constants values like speed, creature size are defined in consts.py
    11. At the end of each simulation simulation state is dump into the file
-   12. When page is refreshed Planet is created from file
+   12. When page is refreshed Planet is created from the state file
 
 
 * Move detail
