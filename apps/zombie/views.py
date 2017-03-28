@@ -83,10 +83,10 @@ def simulation_end(request, game_id):
         context['width'] = WIDTH
         context['height'] = HEIGHT
         context['size'] = OBJECT_SIZE
-        try:
-            os.remove(filePath)
-        except:
-            pass
+        # try:
+        #     os.remove(filePath)
+        # except:
+        #     pass
         return render(request, "zombie/simulation_end.html", context)
     return redirect("home")
 
