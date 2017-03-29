@@ -30,7 +30,7 @@ GitHub: https://github.com/calvnguyen/ZombieApocalypse
     1. There is a Planet class which holds list of creatures( Human, PanickedHuman, Zombie and FightingHuman classes )
     2. Game is initialized with zombie/human/fighting population calculated from user inputs
     3. Fighting humans are selected randomly at 20% of zombies
-    4. These creates are placed at different locations on the planet. Planet is considered a 2-D plane
+    4. These creatures are placed at different locations on the planet. Planet is considered a 2-D plane
     5. Humans are infected when within a radius of zombie locations. They can randomly be infected or panic.
     6. Humans can panic and run witin the same radius, which then become Panicked Humans. This is randomized.
     7. Zombies can be killed by Fighting Human
